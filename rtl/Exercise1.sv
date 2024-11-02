@@ -1,22 +1,19 @@
-/**
-  @brief A simple ALU-like module
+`timescale 1ns / 1ps
 
-  @input op   opcode for the operation to perform
-  @input a    input to calculation
-  @input b    input to calulation
-  @output out result of calculation
-*/
-module Exercise1 (
+
+module exercise1(
+
     input [1:0] op,
     input [7:0] a,
     input [7:0] b,
-    output logic [7:0] out
+    output reg [7:0] out
 );
-  always_comb
+always @*begin
     case (op)
       0: out = a ^ b;
       1: out = a << b;
-      2: out = a % b;
+      2: if (b==0) begin out=0; end else begin out=a%b; end
       3: out = ~(a & b);
     endcase
+ end
 endmodule

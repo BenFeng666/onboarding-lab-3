@@ -1,30 +1,64 @@
-#include <VExercise1.h>
+`timescale 1ns / 1ps
 
-int main() {
-  VExercise1 model;
-  model.op=op;
-  model.a=a;
-  model.b=b;
-  model.eval();
 
-  for (int op=0;op<4;op++){
-    for (int a=0;a<255;a++){
-      for (int b=0;b<255;b++){
-           int expected_result;
-                switch (op) {
-                    case 0: expected_result = a ^ b; break;
-                    case 1: expected_result = b<8? a<<b :0; break;
-                    case 2: expected_result = (b==0) ? 0 : (a%b); break;
-                    case 3: expected_result = ~(a & b); break;
-                }
-                if (model.out !=expected_result){
-                  cout<<"op: "<<op<<"a: "<<a<<"B: "<<b<<endl;
-                  return 1;
-                }
-      }
-    }
-  }
-  return 0; 
+
+module exercise1_tb;
+    // Inputs to the DUT (Device Under Test)
+    reg [1:0] op;
+    reg [7:0] a;
+    reg [7:0] b;
+    wire [7:0] out;
+
+   
+    exercise1 dut (
+        .op(op),
+        .a(a),
+        .b(b),
+        .out(out)
+    );
+
+  
+    reg [7:0] expected_result;
+
+  
+    reg [7:0] i;
+    reg [7:0] j;
+    reg [7:0] k;
+
+initial begin
+        $display("Simulation started...");
+        for (i = 0; i < 4; i = i + 1) begin
+            op = i;
+            
+            for (j = 0; j < 64; j = j + 1) begin
+                a = j;
+                
+                for (k = 0; k < 64; k = k + 1) begin
+                    b = k;
+                    #1; 
+
+                   
+                    case (op)
+                        2'b00: expected_result = a ^ b;
+                        2'b01: expected_result = (b < 8) ? (a << b) : 0;
+                        2'b10: expected_result = (b == 0) ? 0 : (a % b);
+                        2'b11: expected_result = ~(a & b);
+                        default: expected_result = 8'b0;
+                    endcase
+
+                    
+                    if (out !== expected_result) begin
+                        $display("Mismatch: op=%0d, a=%0d, b=%0d, expected=%0d, got=%0d", op, a, b, expected_result, out);
+                        $finish; 
+                    end
+                end
+            end
+        end
+        #500000; // Delay to allow all test cases to finish
+        $display("All tests passed successfully.");
+        $finish; // End simulation after all tests are complete
+    end
+endmodule
 
 
 
